@@ -54,7 +54,7 @@ export default function SignIn() {
                 id="username"
                 name="username"
                 type="text"
-                placeholder="nikolovlazar"
+                placeholder="AleVk"
                 required
               />
             </div>

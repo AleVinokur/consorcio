@@ -11,7 +11,7 @@ const signUpController = getInjection('ISignUpController');
 // https://www.epicweb.dev/talks/how-to-write-better-test-names
 it('returns cookie', async () => {
   const { cookie, user } = await signUpController({
-    username: 'nikolovlazar',
+    username: 'AleVk',
     password: 'password',
     confirm_password: 'password',
   });
@@ -40,7 +40,7 @@ it('throws for invalid input', () => {
   // wrong passwords
   expect(
     signUpController({
-      username: 'nikolovlazar',
+      username: 'AleVk',
       password: 'password',
       confirm_password: 'passwords',
     })

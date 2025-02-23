@@ -62,7 +62,7 @@ export default function SignUp() {
                 id="username"
                 name="username"
                 type="text"
-                placeholder="nikolovlazar"
+                placeholder="AleVk"
                 required
               />
             </div>
