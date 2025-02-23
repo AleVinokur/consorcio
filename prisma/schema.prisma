@@ -1,0 +1,119 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  RESIDENT
+}
+
+enum PaymentMethod {
+  TRANSFER
+  CASH
+}
+
+enum PaymentType {
+  RENT
+  EXPENSE
+}
+
+enum DocumentType {
+  CONTRACT
+  INICIO_CIERRE
+  RECEIPT
+  OTHER
+}
+
+enum RentAdjustmentType {
+  PERIODIC
+  MANUAL
+}
+
+model User {
+  id          Int              @id @default(autoincrement())
+  name        String
+  email       String           @unique
+  password    String
+  role        UserRole
+  active      Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relaciones
+  notices           Notice[]         @relation("CreatedNotices")
+  payments          Payment[]
+  documents         Document[]
+  rentAdjustments   RentAdjustment[] @relation("AdminRentAdjustments")
+  serviceInvoices   ServiceInvoice[] @relation("AdminServiceInvoices")
+}
+
+model Notice {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relación con el administrador que crea el aviso
+  adminId    Int
+  admin      User     @relation(fields: [adminId], references: [id], name: "CreatedNotices")
+}
+
+model Payment {
+  id          Int      @id @default(autoincrement())
+  amount      Float
+  method      PaymentMethod
+  type        PaymentType
+  paymentDate DateTime
+  receiptUrl  String?  // URL opcional del comprobante
+
+  // Relación: cada pago pertenece a un residente
+  residentId  Int
+  resident    User     @relation(fields: [residentId], references: [id])
+}
+
+model Document {
+  id           Int          @id @default(autoincrement())
+  title        String
+  description  String?
+  fileUrl      String
+  type         DocumentType
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  // Relación: usuario que sube el documento (usualmente administrador)
+  uploadedById Int
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+}
+
+model RentAdjustment {
+  id             Int                @id @default(autoincrement())
+  effectiveDate  DateTime
+  newRentAmount  Float
+  adjustmentType RentAdjustmentType
+  createdAt      DateTime           @default(now())
+
+  // Relación: el ajuste es realizado por un administrador
+  adminId        Int
+  admin          User               @relation(fields: [adminId], references: [id], name: "AdminRentAdjustments")
+}
+
+model ServiceInvoice {
+  id          Int      @id @default(autoincrement())
+  month       Int      // 1 a 12
+  year        Int
+  totalAmount Float
+  fileUrl     String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Opcional: usuario administrador que subió la factura
+  adminId     Int?
+  admin       User?    @relation(fields: [adminId], references: [id], name: "AdminServiceInvoices")
+}
